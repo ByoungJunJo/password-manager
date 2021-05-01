@@ -98,6 +98,27 @@ add_button.grid(row=4, column=1, columnspan=2)
 
 window.mainloop()
 ```
+5. Save it to JSON file
+```
+try:
+    with open("data.json", "r") as data_file:
+        # Reading old data
+        data = json.load(data_file)
+except FileNotFoundError:
+    with open("data.json", "w") as data_file:
+        # Saving new data if file not found
+        json.dump(new_data, data_file, indent=4)
+else:
+    # Updating old data with new data
+    data.update(new_data)
+
+    with open("data.json", "w") as data_file:
+        # Saving updated data
+        json.dump(data, data_file, indent=4)
+finally:
+    website_entry.delete(0, 'end')
+    password_entry.delete(0, 'end')
+```
 ## Lessons
 1. The order of operation is from step 4-3-2-1
 2. Break down the problem before solving one
