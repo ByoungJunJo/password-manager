@@ -69,7 +69,32 @@ def save():
             password_entry.delete(0, 'end')
 
 # ---------------------------- FIND SAVED PASSWORD ------------------------------- #
-# Create a function called find_password() that gets triggered when the "Search" button is pressed
+def find_password():
+    """Create a function called find_password() that gets triggered when the "Search" button is pressed"""
+
+    # Catch an exception that might occur trying to access the data.json showing a messagebox with the text "No Data File Found".
+    try:
+        # Read the data
+        with open("data.json", "r") as data_file:
+            # Reading old data
+            data = json.load(data_file)
+
+            # Check if the user's text entry matches an item in the data.json
+            website = website_entry.get()
+            email = data.get(website, {}).get('email')
+            password = data.get(website, {}).get('password')
+
+        # If yes, show a messagebox with the website's name and password
+        if website in data:
+            messagebox.showinfo(title=f"{website} Login Info", message=f"Email: {email}\nPassword: {password}")
+
+        # If the user's website does not exist inside the data.json, show a messagebox that reads "No details for the website exists."
+        else:
+            messagebox.showinfo(title="Opps", message="No details for the website exists.")
+
+    except FileNotFoundError:
+        messagebox.showinfo(title="Opps", message="No Data File Found.")
+
 
 # ---------------------------- UI SETUP ------------------------------- #
 # Import tk inter
@@ -89,7 +114,7 @@ website_label.grid(row=1, column=0)
 website_entry = Entry(width=21)
 website_entry.grid(row=1, column=1)
 website_entry.focus()
-password_button = Button(text="Search", width=13)
+password_button = Button(text="Search", width=13, command=find_password)
 password_button.grid(row=1, column=2)
 
 # Email labels and entries
