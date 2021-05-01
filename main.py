@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import pyperclip
+import json
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def generate_password():
@@ -37,18 +38,38 @@ def save():
     website = website_entry.get()
     email = email_entry.get()
     password = password_entry.get()
+    new_data = {
+        website: {
+            "email": email,
+            "password": password,
+        }
+    }
 
     # Do not save the data and show the pop up above if the website or password fields were left empty
     if len(website) == 0 or len(password) == 0:
         messagebox.showinfo(title="Oops", message="Please don't leave any fields empty!")
     else:
-        is_ok = messagebox.askokcancel(title=website, message=f"These are the details entered: \nEmail: {email} \nPassword: {password} \nIs it okay to save?")
-        if is_ok:
-            with open("data.txt", "a") as data:
-                data.write(f"{website} | {email} | {password}\n")
-                # All fields need to be cleared Add button is pressed
-                website_entry.delete(0, 'end')
-                password_entry.delete(0, 'end')
+        try:
+            with open("data.json", "r") as data_file:
+                # Reading old data
+                data = json.load(data_file)
+        except FileNotFoundError:
+            with open("data.json", "w") as data_file:
+                # Saving new data if file not found
+                json.dump(new_data, data_file, indent=4)
+        else:
+            # Updating old data with new data
+            data.update(new_data)
+
+            with open("data.json", "w") as data_file:
+                # Saving updated data
+                json.dump(data, data_file, indent=4)
+        finally:
+            website_entry.delete(0, 'end')
+            password_entry.delete(0, 'end')
+
+# ---------------------------- FIND SAVED PASSWORD ------------------------------- #
+# Create a function called find_password() that gets triggered when the "Search" button is pressed
 
 # ---------------------------- UI SETUP ------------------------------- #
 # Import tk inter
@@ -65,9 +86,11 @@ canvas.grid(row=0, column=1)
 # Website labels and entries
 website_label = Label(text="Website:")
 website_label.grid(row=1, column=0)
-website_entry = Entry(width=35)
-website_entry.grid(row=1, column=1, columnspan=2)
+website_entry = Entry(width=21)
+website_entry.grid(row=1, column=1)
 website_entry.focus()
+password_button = Button(text="Search", width=13)
+password_button.grid(row=1, column=2)
 
 # Email labels and entries
 email_label = Label(text="Email/Username:")
